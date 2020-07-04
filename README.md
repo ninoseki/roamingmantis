@@ -39,7 +39,7 @@ Commands:
 ```
 
 ```bash
-moqhao analyze-apk /path/to/apk
+fakespy analyze-apk /path/to/apk
 ```
 
 You can send the following commands.
@@ -49,11 +49,9 @@ You can send the following commands.
 - [GetMoreMessage](https://github.com/ninoseki/fakespy/wiki#getmoremessage)(`sendAll`)
 - [GetMoreConMessge](https://github.com/ninoseki/fakespy/wiki#getmoreconmessage)(`sendCon`)
 
-
 ```bash
-moqhao send-command GetMessage2 foo.bar.com
+fakespy send-command GetMessage2 foo.bar.com
 ```
-
 
 ### MoqHao
 
