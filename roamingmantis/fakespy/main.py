@@ -23,10 +23,5 @@ def analyze_apk(path: str, extract_dex: bool = False, verbose: bool = False):
     typer.echo(formatted_json)
 
 
-@app.callback(invoke_without_command=True)
-def main():
-    typer.echo("Analyze FakeSpy apk")
-
-
 if __name__ == "__main__":
     app()
