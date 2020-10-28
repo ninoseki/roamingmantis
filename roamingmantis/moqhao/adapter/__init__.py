@@ -22,9 +22,9 @@ class BaseAdapter(ABC):
         return f"{self._base_url()}/{self.id}"
 
     async def _get(self) -> HTML:
-        client = httpx.AsyncClient()
-        r = await client.get(self.url())
-        return HTML(html=r.text)
+        async with httpx.AsyncClient() as client:
+            r = await client.get(self.url())
+            return HTML(html=r.text)
 
     @abstractmethod
     async def _payload(self) -> str:
