@@ -7,11 +7,11 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-httpx = "^0.13.3"
-loguru = "^0.5.1"
+httpx = "^0.16.1"
+loguru = "^0.5.3"
 pycrypto = "^2.6.1"
 requests-html = "^0.10.0"
-typer = "^0.3.0"
+typer = "^0.3.2"
 androguard = "^3.3.5"
 aiometer = "^0.2.1"
 

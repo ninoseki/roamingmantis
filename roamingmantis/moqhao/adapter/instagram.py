@@ -12,9 +12,9 @@ class Instagram(BaseAdapter):
         return f"{self._base_url()}/{self.id}/?__a=1"
 
     async def _get(self):
-        client = httpx.AsyncClient()
-        r = await client.get(self.url())
-        return r.json()
+        async with httpx.AsyncClient() as client:
+            r = await client.get(self.url())
+            return r.json()
 
     async def _payload(self):
         json = await self._get()
