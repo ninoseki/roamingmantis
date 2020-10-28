@@ -19,4 +19,5 @@ class YouTube(BaseAdapter):
             return
 
         descrption = descs[0]
-        return descrption.attrs.get("content")
+        content = str(descrption.attrs.get("content"))
+        return content.split("oeewe")[1]
