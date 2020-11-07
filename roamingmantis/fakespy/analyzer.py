@@ -6,16 +6,46 @@ from zipfile import ZipFile
 
 from androguard.core.bytecodes.apk import APK
 from androguard.core.bytecodes.dvm import DalvikVMFormat
-from Crypto.Cipher import AES
+from Crypto.Cipher import AES, DES
 from loguru import logger
 
 KEY = base64.decodebytes(b"MkXOl0e30PeWG01t7cTKjA==")
 URL_WHITE_LIST = [
-    "http://nittsu-si.com/",
-    "http://schemas.android.com/apk/res/android",
-    "http://www.sagawa-exp.co.jp/",
-    "http://biesi.club//servlet/xx",
+    "https://twitter.com/siumakuaw",
+    "http://kuronekoamato.com/",
+    "http://jppost.picp.io/",
+    "http://liankt.club/",
+    "https://twitter.com/sekadeta",
 ]
+
+
+def get_des_key(key: str) -> bytes:
+    array = bytearray(8)
+    bytes_ = key.encode()
+    for i in range(len(bytes_)):
+        array[i] = bytes_[i]
+
+    return bytes(array)
+
+
+def hex2byte(string: str) -> bytes:
+    bytes_ = string.encode()
+    array = bytearray(int(len(bytes_) / 2))
+
+    for i in range(0, len(bytes_), 2):
+        char = bytes_[i : i + 2].decode()
+        idx = int(i / 2)
+        array[idx] = int(char, 16)
+
+    return bytes(array)
+
+
+def decrypt_c2(encrypted_key: str, key: str = "TEST") -> str:
+    des = DES.new(get_des_key(key))
+    bytes_ = hex2byte(encrypted_key)
+    decrypted: bytes = des.decrypt(bytes_)
+    decrypted_string: str = decrypted.decode()
+    return "".join([chr for chr in decrypted_string if ord(chr) >= 32])
 
 
 def extract_zip(input_zip) -> Dict[str, bytes]:
@@ -61,7 +91,17 @@ def find_hidden_dex(apk: APK) -> Optional[DalvikVMFormat]:
 
 
 def find_urls(strings: List[str]) -> List[str]:
-    return [x for x in strings if re.match(r"http[s]?:\/\/[a-zA-Z0-1\.-]+\/", x)]
+    decrpyted_keys: List[str] = []
+    for encrypted_key in strings:
+        if not encrypted_key.isalnum():
+            continue
+
+        try:
+            decrpyted_keys.append(decrypt_c2(encrypted_key))
+        except Exception:
+            continue
+
+    return [x for x in decrpyted_keys if x.startswith(("https://", "http://"))]
 
 
 def find_c2(urls: List[str]) -> List[str]:
