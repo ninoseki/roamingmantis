@@ -11,7 +11,6 @@ class VK(BaseAdapter):
 
     async def _payload(self):
         html = await self._get()
-        print(html.text)
         selector = "#mcont > div > div > div.profile_info > div > div > dl > dd > a"
         profile = html.find(selector, first=True)
         if profile is None:
