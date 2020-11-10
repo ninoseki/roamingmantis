@@ -57,7 +57,7 @@ class BaseAdapter(ABC):
             if decrypted is None:
                 return None
 
-            return decrypted.decode("utf-8")
+            return "".join([chr for chr in decrypted.decode() if ord(chr) >= 32])
         except ValueError:
             pass
 

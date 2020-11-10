@@ -1,5 +1,6 @@
 import base64
 import functools
+import io
 import re
 import sys
 import zlib
@@ -30,10 +31,10 @@ def parse_apk(path: str):
         return None
 
 
-def decrypt_dex(data):
+def decrypt_dex(data: bytes, skip: int = BYTES_TO_SKIP):
     # credit: https://securelist.com/roaming-mantis-part-iv/90332/
     try:
-        decompressed = zlib.decompress(data[BYTES_TO_SKIP:])
+        decompressed = zlib.decompress(data[skip:])
         b64decoded = base64.b64decode(decompressed)
         vm = dvm.DalvikVMFormat(b64decoded)
         logger.debug("Decrypted as type A")
@@ -43,11 +44,11 @@ def decrypt_dex(data):
         return None
 
 
-def decrypt_dex_b(data):
+def decrypt_dex_b(data: bytes, skip: int = BYTES_TO_SKIP):
     try:
-        first_byte = data[BYTES_TO_SKIP]
+        first_byte = data[skip]
         byte_array = []
-        for idx in range(BYTES_TO_SKIP + 1, len(data)):
+        for idx in range(skip + 1, len(data)):
             byte_array.append(data[idx] ^ first_byte)
         decompressed = zlib.decompress(bytes(byte_array))
         b64decoded = base64.b64decode(decompressed)
@@ -59,16 +60,57 @@ def decrypt_dex_b(data):
         return None
 
 
+def decrypt_dex_c(data: bytes, skip: int = 11):
+    file = io.BytesIO(data)
+    file.seek(skip)
+
+    read: int = int.from_bytes(file.read(1), "big")
+
+    array = bytearray(1024)
+    output = io.BytesIO()
+
+    while True:
+        tmp = file.read(1024)
+        array = bytearray(tmp)
+        read2 = len(tmp)
+
+        if read2 == 0:
+            break
+
+        for i in range(read2):
+            array[i] = array[i] ^ read
+
+        output.write(array)
+
+    output.seek(0)
+    decompressed = zlib.decompress(output.read())
+    try:
+        vm = dvm.DalvikVMFormat(decompressed)
+        return vm
+    except Exception:
+        logger.debug("Failed to decrypt as type C")
+        return None
+
+
 def find_hidden_dex(apk: APK):
     files = apk.get_files()
     hidden_dex_names = [x for x in files if re.match(r"assets/[a-z0-9]+/[a-z0-9]+", x)]
     if len(hidden_dex_names) == 1:
         hidden_dex_name = hidden_dex_names[0]
         data = apk.get_file(hidden_dex_name)
+
+        # decrypt as type-A
         dex = decrypt_dex(data)
         if dex is not None:
             return dex
-        return decrypt_dex_b(data)
+
+        # decrypt as type-B
+        dex = decrypt_dex_b(data)
+        if dex is not None:
+            return dex
+
+        # decrypt as type-C
+        return decrypt_dex_c(data)
 
     return None
 
