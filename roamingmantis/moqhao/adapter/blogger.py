@@ -10,5 +10,9 @@ class Blogger(BaseAdapter):
         title = html.find("#maia-main > div > h1", first=True)
         if title is None:
             return
-        else:
-            return title.text
+
+        payload = title.text
+        if "owerty" not in payload:
+            return
+
+        return payload.split("owerty")[1]
