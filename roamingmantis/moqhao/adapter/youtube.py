@@ -19,8 +19,4 @@ class YouTube(BaseAdapter):
             return
 
         descrption = descs[0]
-        content = str(descrption.attrs.get("content"))
-        if "oeewe" not in content:
-            return
-
-        return content.split("oeewe")[1]
+        return str(descrption.attrs.get("content"))

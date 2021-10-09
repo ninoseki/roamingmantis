@@ -15,5 +15,5 @@ class Blogspot(BaseAdapter):
         profile = html.find(selector, first=True)
         if profile is None:
             return
-        else:
-            return profile.text
+
+        return profile.text

@@ -11,12 +11,4 @@ class Blogger(BaseAdapter):
         if title is None:
             return
 
-        payload = title.text
-
-        # TODO: make possible to detect prefix/suffix with auto
-        prefixes = ["owerty", "ohgftyn"]
-        for prefix in prefixes:
-            if prefix in payload:
-                return payload.split(prefix)[1]
-
-        return None
+        return str(title.text)

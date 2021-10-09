@@ -7,6 +7,8 @@ from Crypto.Cipher import DES
 from httpx import HTTPError
 from requests_html import HTML
 
+from .utils import remove_prefix
+
 
 class BaseAdapter(ABC):
     def __init__(self, id: str):
@@ -45,6 +47,9 @@ class BaseAdapter(ABC):
         payload = await self.payload()
         if payload is None:
             return None
+
+        # remove prefix/suffix
+        payload = remove_prefix(payload)
 
         b = base64.urlsafe_b64decode(payload)
         des = DES.new(self.key, 2, self.key)
